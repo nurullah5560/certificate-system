@@ -109,12 +109,31 @@
                 <!-- Template Upload Section -->
                 <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Şablon Yükleme</h3>
-                    <div id="templateUpload" class="drag-area rounded-lg p-8 text-center cursor-pointer hover-scale">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
-                        <p class="text-gray-600 mb-2">Şablon resmini buraya sürükleyin veya tıklayın</p>
-                        <p class="text-sm text-gray-500">JPG, PNG formatları desteklenir (Max: 10MB)</p>
-                        <input type="file" id="templateFile" accept="image/*" class="hidden">
+                    
+                    <!-- Template URL Input -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Şablon URL'si</label>
+                        <input type="url" id="templateUrl" placeholder="https://nurullah5560.github.io/certificate-system/images/template1.jpg" 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">GitHub deponuzdaki images klasöründeki şablon resminin tam URL'sini girin</p>
+                        <button id="loadTemplateBtn" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-200">
+                            <i class="fas fa-download mr-2"></i>
+                            Şablonu Yükle
+                        </button>
                     </div>
+                    
+                    <!-- Alternative Upload -->
+                    <div class="border-t pt-4">
+                        <p class="text-sm text-gray-600 mb-2">Veya yerel önizleme için:</p>
+                        <div id="templateUpload" class="drag-area rounded-lg p-8 text-center cursor-pointer hover-scale">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600 mb-2">Şablon resmini buraya sürükleyin veya tıklayın</p>
+                            <p class="text-sm text-gray-500">JPG, PNG formatları desteklenir (Max: 10MB)</p>
+                            <p class="text-xs text-red-500 mt-2">⚠️ Bu sadece önizleme içindir. Kalıcı paylaşım için yukarıdaki URL alanını kullanın.</p>
+                            <input type="file" id="templateFile" accept="image/*" class="hidden">
+                        </div>
+                    </div>
+                    
                     <div id="templatePreview" class="mt-4 hidden">
                         <img id="templateImage" class="max-w-full h-auto rounded-lg shadow-md">
                     </div>
@@ -254,6 +273,18 @@
                                 Linki Kopyala
                             </button>
                         </div>
+                        
+                        <!-- Share URL Display -->
+                        <div id="shareUrlDisplay" class="mt-4 hidden">
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Paylaşım Linki:</label>
+                            <div class="flex">
+                                <input type="text" id="shareUrlText" readonly 
+                                       class="flex-1 p-2 border border-gray-300 rounded-l-lg bg-gray-50 text-sm">
+                                <button id="copyUrlBtn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-r-lg">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div>
@@ -261,512 +292,8 @@
                         <div id="certificatePreview" class="bg-gray-100 rounded-lg p-4 min-h-64 flex items-center justify-center">
                             <div class="text-gray-500 text-center">
                                 <i class="fas fa-certificate text-4xl mb-4"></i>
-                                <p>İsim girildikten sonra sertifika önizlemesi burada görünecek</p>
-                            </div>
-                            <canvas id="certificateCanvas" class="hidden max-w-full h-auto"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+                                <
+(Content truncated due to size limit. Use page ranges or line ranges to read remaining content)
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto px-4 text-center">
-            <p>&copy; 2024 Profesyonel Sertifika Oluşturucu. Tüm hakları saklıdır.</p>
-        </div>
-    </footer>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
-        <div class="flex items-center">
-            <i class="fas fa-check-circle mr-2"></i>
-            <span id="toastMessage">İşlem başarılı!</span>
-        </div>
-    </div>
-
-    <script>
-        // Global variables
-        let currentTemplate = null;
-        let templateSettings = {
-            positionX: 50,
-            positionY: 50,
-            fontSize: 24,
-            fontFamily: 'Arial',
-            textColor: '#000000',
-            fontBold: false,
-            fontItalic: false,
-            fontUnderline: false
-        };
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeEventListeners();
-            loadFromURL();
-        });
-
-        function initializeEventListeners() {
-            // Template upload
-            const templateUpload = document.getElementById('templateUpload');
-            const templateFile = document.getElementById('templateFile');
-            
-            templateUpload.addEventListener('click', () => templateFile.click());
-            templateUpload.addEventListener('dragover', handleDragOver);
-            templateUpload.addEventListener('drop', handleDrop);
-            templateFile.addEventListener('change', handleFileSelect);
-
-            // Position controls
-            document.getElementById('positionX').addEventListener('input', updatePosition);
-            document.getElementById('positionY').addEventListener('input', updatePosition);
-
-            // Text style controls
-            document.getElementById('fontSize').addEventListener('input', updateTextStyle);
-            document.getElementById('fontFamily').addEventListener('change', updateTextStyle);
-            document.getElementById('textColor').addEventListener('input', updateTextStyle);
-            document.getElementById('fontBold').addEventListener('change', updateTextStyle);
-            document.getElementById('fontItalic').addEventListener('change', updateTextStyle);
-            document.getElementById('fontUnderline').addEventListener('change', updateTextStyle);
-
-            // Action buttons
-            document.getElementById('updateTemplateBtn').addEventListener('click', updateTemplate);
-            document.getElementById('createShareLinkBtn').addEventListener('click', createShareLink);
-            document.getElementById('generateCertificateBtn').addEventListener('click', generateCertificate);
-            document.getElementById('downloadBtn').addEventListener('click', downloadCertificate);
-            document.getElementById('copyLinkBtn').addEventListener('click', copyShareLink);
-
-            // Certificate name input
-            document.getElementById('certificateName').addEventListener('input', updateCertificatePreview);
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            toastMessage.textContent = message;
-            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-transform duration-300 z-50 ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            } text-white`;
-            
-            toast.style.transform = 'translateX(0)';
-            
-            setTimeout(() => {
-                toast.style.transform = 'translateX(100%)';
-            }, 3000);
-        }
-
-        // Image upload and processing functions
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('drag-over');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                processImageFile(files[0]);
-            }
-        }
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (file) {
-                processImageFile(file);
-            }
-        }
-
-        function processImageFile(file) {
-            // Validate file type
-            if (!file.type.match(/^image\/(jpeg|jpg|png)$/i)) {
-                showToast('Lütfen JPG veya PNG formatında bir resim seçin.', 'error');
-                return;
-            }
-
-            // Validate file size (10MB max)
-            if (file.size > 10 * 1024 * 1024) {
-                showToast('Dosya boyutu 10MB\'dan küçük olmalıdır.', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    compressAndDisplayImage(img, file.name);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function compressAndDisplayImage(img, fileName) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            // Calculate new dimensions (max 800px width)
-            let { width, height } = img;
-            const maxWidth = 800;
-            
-            if (width > maxWidth) {
-                height = (height * maxWidth) / width;
-                width = maxWidth;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-
-            // Draw and compress image
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Convert to blob with 80% quality
-            canvas.toBlob(function(blob) {
-                const compressedUrl = URL.createObjectURL(blob);
-                displayTemplate(compressedUrl, width, height);
-                
-                // Store template data
-                currentTemplate = {
-                    url: compressedUrl,
-                    width: width,
-                    height: height,
-                    originalName: fileName
-                };
-
-                // Enable buttons
-                document.getElementById('updateTemplateBtn').disabled = false;
-                document.getElementById('createShareLinkBtn').disabled = false;
-
-                showToast('Şablon başarıyla yüklendi ve optimize edildi!');
-            }, 'image/jpeg', 0.8);
-        }
-
-        function displayTemplate(url, width, height) {
-            const templateImage = document.getElementById('templateImage');
-            const templatePreview = document.getElementById('templatePreview');
-            
-            templateImage.src = url;
-            templateImage.style.maxWidth = '100%';
-            templateImage.style.height = 'auto';
-            templatePreview.classList.remove('hidden');
-
-            // Update preview canvas
-            updatePreviewCanvas();
-        }
-
-        function updatePreviewCanvas() {
-            if (!currentTemplate) return;
-
-            const canvas = document.getElementById('previewCanvas');
-            const ctx = canvas.getContext('2d');
-            const container = document.getElementById('previewContainer');
-
-            // Set canvas size
-            canvas.width = currentTemplate.width;
-            canvas.height = currentTemplate.height;
-
-            // Load and draw template image
-            const img = new Image();
-            img.onload = function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, currentTemplate.width, currentTemplate.height);
-                
-                // Show canvas and hide placeholder
-                canvas.classList.remove('hidden');
-                container.querySelector('.text-gray-500').style.display = 'none';
-                
-                // Update position indicator
-                updatePositionIndicator();
-            };
-            img.src = currentTemplate.url;
-        }
-
-        function updatePositionIndicator() {
-            const indicator = document.getElementById('positionIndicator');
-            const canvas = document.getElementById('previewCanvas');
-            
-            if (!currentTemplate || canvas.classList.contains('hidden')) {
-                indicator.classList.add('hidden');
-                return;
-            }
-
-            const canvasRect = canvas.getBoundingClientRect();
-            const containerRect = canvas.parentElement.getBoundingClientRect();
-            
-            const x = canvasRect.left - containerRect.left + (canvasRect.width * templateSettings.positionX / 100);
-            const y = canvasRect.top - containerRect.top + (canvasRect.height * templateSettings.positionY / 100);
-            
-            indicator.style.left = x + 'px';
-            indicator.style.top = y + 'px';
-            indicator.classList.remove('hidden');
-        }
-
-        function updatePosition() {
-            const positionX = document.getElementById('positionX').value;
-            const positionY = document.getElementById('positionY').value;
-            
-            templateSettings.positionX = parseInt(positionX);
-            templateSettings.positionY = parseInt(positionY);
-            
-            // Update display values
-            document.getElementById('positionXValue').textContent = positionX + '%';
-            document.getElementById('positionYValue').textContent = positionY + '%';
-            
-            // Update position indicator
-            updatePositionIndicator();
-            
-            // Update certificate preview if name is entered
-            updateCertificatePreview();
-        }
-
-        function updateTextStyle() {
-            const fontSize = document.getElementById('fontSize').value;
-            const fontFamily = document.getElementById('fontFamily').value;
-            const textColor = document.getElementById('textColor').value;
-            const fontBold = document.getElementById('fontBold').checked;
-            const fontItalic = document.getElementById('fontItalic').checked;
-            const fontUnderline = document.getElementById('fontUnderline').checked;
-            
-            templateSettings.fontSize = parseInt(fontSize);
-            templateSettings.fontFamily = fontFamily;
-            templateSettings.textColor = textColor;
-            templateSettings.fontBold = fontBold;
-            templateSettings.fontItalic = fontItalic;
-            templateSettings.fontUnderline = fontUnderline;
-            
-            // Update display value
-            document.getElementById('fontSizeValue').textContent = fontSize + 'px';
-            
-            // Update certificate preview if name is entered
-            updateCertificatePreview();
-        }
-
-        function updateTemplate() {
-            if (!currentTemplate) {
-                showToast('Lütfen önce bir şablon yükleyin.', 'error');
-                return;
-            }
-            
-            showToast('Şablon ayarları güncellendi!');
-            updatePreviewCanvas();
-        }
-
-        function generateCertificate() {
-            const name = document.getElementById('certificateName').value.trim();
-            if (!name) {
-                showToast('Lütfen bir isim girin.', 'error');
-                return;
-            }
-            
-            if (!currentTemplate) {
-                showToast('Lütfen önce bir şablon yükleyin.', 'error');
-                return;
-            }
-            
-            renderCertificate(name);
-            document.getElementById('downloadBtn').disabled = false;
-            showToast('Sertifika başarıyla oluşturuldu!');
-        }
-
-        function renderCertificate(name) {
-            const canvas = document.getElementById('certificateCanvas');
-            const ctx = canvas.getContext('2d');
-            const previewContainer = document.getElementById('certificatePreview');
-            
-            // Set canvas size
-            canvas.width = currentTemplate.width;
-            canvas.height = currentTemplate.height;
-            
-            // Load and draw template image
-            const img = new Image();
-            img.onload = function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, currentTemplate.width, currentTemplate.height);
-                
-                // Draw text
-                drawTextOnCanvas(ctx, name, canvas.width, canvas.height);
-                
-                // Show canvas and hide placeholder
-                canvas.classList.remove('hidden');
-                previewContainer.querySelector('.text-gray-500').style.display = 'none';
-            };
-            img.src = currentTemplate.url;
-        }
-
-        function drawTextOnCanvas(ctx, text, canvasWidth, canvasHeight) {
-            // Calculate position
-            const x = (canvasWidth * templateSettings.positionX) / 100;
-            const y = (canvasHeight * templateSettings.positionY) / 100;
-            
-            // Set font style
-            let fontStyle = '';
-            if (templateSettings.fontItalic) fontStyle += 'italic ';
-            if (templateSettings.fontBold) fontStyle += 'bold ';
-            
-            ctx.font = `${fontStyle}${templateSettings.fontSize}px ${templateSettings.fontFamily}`;
-            ctx.fillStyle = templateSettings.textColor;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // Draw text with underline if needed
-            ctx.fillText(text, x, y);
-            
-            if (templateSettings.fontUnderline) {
-                const textMetrics = ctx.measureText(text);
-                const textWidth = textMetrics.width;
-                const underlineY = y + templateSettings.fontSize * 0.1;
-                
-                ctx.beginPath();
-                ctx.moveTo(x - textWidth / 2, underlineY);
-                ctx.lineTo(x + textWidth / 2, underlineY);
-                ctx.strokeStyle = templateSettings.textColor;
-                ctx.lineWidth = Math.max(1, templateSettings.fontSize * 0.05);
-                ctx.stroke();
-            }
-        }
-
-        function updateCertificatePreview() {
-            const name = document.getElementById('certificateName').value.trim();
-            if (name && currentTemplate) {
-                renderCertificate(name);
-            } else if (currentTemplate) {
-                // Hide certificate canvas and show placeholder
-                const canvas = document.getElementById('certificateCanvas');
-                const previewContainer = document.getElementById('certificatePreview');
-                canvas.classList.add('hidden');
-                previewContainer.querySelector('.text-gray-500').style.display = 'block';
-            }
-        }
-
-        function createShareLink() {
-            if (!currentTemplate) {
-                showToast('Lütfen önce bir şablon yükleyin.', 'error');
-                return;
-            }
-            
-            // Create template data object
-            const templateData = {
-                template: currentTemplate.url,
-                settings: templateSettings
-            };
-            
-            // Encode data to base64
-            const encodedData = btoa(JSON.stringify(templateData));
-            
-            // Create share URL
-            const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
-            
-            // Store share URL for copying
-            window.currentShareUrl = shareUrl;
-            
-            // Show share section
-            document.getElementById('shareSection').classList.remove('hidden');
-            
-            showToast('Paylaşım linki oluşturuldu! Aşağıdan sertifika oluşturabilirsiniz.');
-        }
-
-        function downloadCertificate() {
-            const canvas = document.getElementById('certificateCanvas');
-            if (canvas.classList.contains('hidden')) {
-                showToast('Lütfen önce sertifikayı oluşturun.', 'error');
-                return;
-            }
-            
-            // Convert canvas to blob and download
-            canvas.toBlob(function(blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `sertifika_${document.getElementById('certificateName').value.trim()}.jpg`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast('Sertifika başarıyla indirildi!');
-            }, 'image/jpeg', 0.9);
-        }
-
-        function copyShareLink() {
-            if (!window.currentShareUrl) {
-                showToast('Lütfen önce paylaşım linki oluşturun.', 'error');
-                return;
-            }
-            
-            navigator.clipboard.writeText(window.currentShareUrl).then(function() {
-                showToast('Paylaşım linki panoya kopyalandı!');
-            }).catch(function() {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = window.currentShareUrl;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showToast('Paylaşım linki panoya kopyalandı!');
-            });
-        }
-
-        function loadFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const data = urlParams.get('data');
-            
-            if (data) {
-                try {
-                    const templateData = JSON.parse(atob(data));
-                    
-                    // Load template image
-                    const img = new Image();
-                    img.onload = function() {
-                        // Create template object
-                        currentTemplate = {
-                            url: templateData.template,
-                            width: img.width,
-                            height: img.height,
-                            originalName: 'shared_template.jpg'
-                        };
-                        
-                        // Load settings
-                        templateSettings = { ...templateSettings, ...templateData.settings };
-                        
-                        // Update UI controls
-                        updateUIControls();
-                        
-                        // Display template
-                        displayTemplate(templateData.template, img.width, img.height);
-                        
-                        // Enable buttons
-                        document.getElementById('updateTemplateBtn').disabled = false;
-                        document.getElementById('createShareLinkBtn').disabled = false;
-                        
-                        // Show share section
-                        document.getElementById('shareSection').classList.remove('hidden');
-                        
-                        showToast('Paylaşılan şablon başarıyla yüklendi!');
-                    };
-                    img.src = templateData.template;
-                } catch (error) {
-                    showToast('Paylaşım linki geçersiz.', 'error');
-                }
-            }
-        }
-
-        function updateUIControls() {
-            document.getElementById('positionX').value = templateSettings.positionX;
-            document.getElementById('positionY').value = templateSettings.positionY;
-            document.getElementById('fontSize').value = templateSettings.fontSize;
-            document.getElementById('fontFamily').value = templateSettings.fontFamily;
-            document.getElementById('textColor').value = templateSettings.textColor;
-            document.getElementById('fontBold').checked = templateSettings.fontBold;
-            document.getElementById('fontItalic').checked = templateSettings.fontItalic;
-            document.getElementById('fontUnderline').checked = templateSettings.fontUnderline;
-            
-            // Update display values
-            document.getElementById('positionXValue').textContent = templateSettings.positionX + '%';
-            document.getElementById('positionYValue').textContent = templateSettings.positionY + '%';
-            document.getElementById('fontSizeValue').textContent = templateSettings.fontSize + 'px';
-        }
-    </script>
-</body>
-</html>
 
